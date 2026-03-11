@@ -35,7 +35,7 @@ export const HOME_PROJECTS = [
   {
     name: "SuperDuty",
     descriptionKey: "projects.superduty" as const,
-    href: "https://superduty.app",
+    href: "https://www.superduty.app",
     logo: "/images/projects/superduty.ico",
   },
 ] as const;
