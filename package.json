@@ -17,7 +17,8 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "type-check": "astro check",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "og:capture": "node scripts/capture-og-image.mjs"
   },
   "volta": {
     "node": "20.19.0",

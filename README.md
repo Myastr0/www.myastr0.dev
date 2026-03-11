@@ -27,6 +27,7 @@ pnpm test:e2e
 - `pnpm format` / `pnpm format:check` — Prettier
 - `pnpm lint` — ESLint
 - `pnpm type-check` — Astro type check
+- `pnpm og:capture` — Capture homepage as default OG image (Playwright; writes `public/default-og.jpg`)
 
 ## License
 

@@ -3,6 +3,14 @@ import { SITE } from "@/config";
 import { translateFor } from "@/i18n/utils";
 import loadGoogleFonts from "../loadGoogleFont";
 
+/** Dark theme (matches site) for stylized OG image */
+const OG_DARK = {
+  background: "#0c0c0b",
+  foreground: "#e8e6e0",
+  muted: "#9a9890",
+  accent: "#e8b84b",
+};
+
 export default async (localKey, localeConfig) => {
   const t = translateFor(localKey);
 
@@ -21,111 +29,66 @@ export default async (localKey, localeConfig) => {
       type: "div",
       props: {
         style: {
-          background: "#fefbfb",
+          background: OG_DARK.background,
           width: "100%",
           height: "100%",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          padding: 80,
         },
         children: [
           {
             type: "div",
             props: {
               style: {
-                position: "absolute",
-                top: "-1px",
-                right: "-1px",
-                border: "4px solid #000",
-                background: "#ecebeb",
-                opacity: "0.9",
-                borderRadius: "4px",
                 display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
                 justifyContent: "center",
-                margin: "2.5rem",
-                width: "88%",
-                height: "80%",
+                gap: 24,
               },
-            },
-          },
-          {
-            type: "div",
-            props: {
-              style: {
-                border: "4px solid #000",
-                background: "#fefbfb",
-                borderRadius: "4px",
-                display: "flex",
-                justifyContent: "center",
-                margin: "2rem",
-                width: "88%",
-                height: "80%",
-              },
-              children: {
-                type: "div",
-                props: {
-                  style: {
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    margin: "20px",
-                    width: "90%",
-                    height: "90%",
+              children: [
+                {
+                  type: "p",
+                  props: {
+                    style: {
+                      fontFamily: "DM Serif Display",
+                      fontSize: 120,
+                      fontWeight: 400,
+                      color: OG_DARK.foreground,
+                      margin: 0,
+                      letterSpacing: "-0.02em",
+                      lineHeight: 1.1,
+                    },
+                    children: siteTitle,
                   },
-                  children: [
-                    {
-                      type: "div",
-                      props: {
-                        style: {
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          height: "90%",
-                          maxHeight: "90%",
-                          overflow: "hidden",
-                          textAlign: "center",
-                        },
-                        children: [
-                          {
-                            type: "p",
-                            props: {
-                              style: { fontSize: 72, fontWeight: "bold" },
-                              children: siteTitle,
-                            },
-                          },
-                          {
-                            type: "p",
-                            props: {
-                              style: { fontSize: 28 },
-                              children: siteDesc,
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      type: "div",
-                      props: {
-                        style: {
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          width: "100%",
-                          marginBottom: "8px",
-                          fontSize: 28,
-                        },
-                        children: {
-                          type: "span",
-                          props: {
-                            style: { overflow: "hidden", fontWeight: "bold" },
-                            children: new URL(SITE.website).hostname,
-                          },
-                        },
-                      },
-                    },
-                  ],
                 },
-              },
+                {
+                  type: "div",
+                  props: {
+                    style: {
+                      width: 120,
+                      height: 4,
+                      background: OG_DARK.accent,
+                      borderRadius: 2,
+                    },
+                  },
+                },
+                {
+                  type: "p",
+                  props: {
+                    style: {
+                      fontFamily: "DM Serif Display",
+                      fontSize: 28,
+                      color: OG_DARK.muted,
+                      margin: 0,
+                    },
+                    children: siteDesc,
+                  },
+                },
+              ],
             },
           },
         ],
@@ -136,8 +99,9 @@ export default async (localKey, localeConfig) => {
       height: 630,
       embedFont: true,
       fonts: await loadGoogleFonts(
-        siteTitle + siteDesc + SITE.website,
-        localeConfig.googleFontName
+        siteTitle + siteDesc,
+        "DM+Serif+Display",
+        [400]
       ),
     }
   );
