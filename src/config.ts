@@ -8,7 +8,8 @@ export const SITE = {
   /** Homepage avatar path (in public/), or null to hide */
   avatar: "/images/avatar.jpg",
   profile: "https://github.com/Myastr0",
-  ogImage: "default-og.jpg",
+  /** Default OG image: "" = use dynamic /og.png (stylized "Myastr0.dev" title). Or set e.g. "default-og.jpg" for a static file. */
+  ogImage: "",
   lightAndDarkMode: true,
   postPerIndex: 5,
   postPerPage: 4,
@@ -34,7 +35,7 @@ export const HOME_PROJECTS = [
   {
     name: "SuperDuty",
     descriptionKey: "projects.superduty" as const,
-    href: "https://superduty.io",
+    href: "https://superduty.app",
     logo: "/images/projects/superduty.ico",
   },
 ] as const;

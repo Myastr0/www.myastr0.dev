@@ -15,7 +15,7 @@ async function loadGoogleFont(
   ).text();
 
   const resource = css.match(
-    /src: url\((.+?)\) format\('(opentype|truetype)'\)/
+    /src: url\((.+?)\) format\('(woff2|opentype|truetype)'\)/
   );
 
   if (!resource) throw new Error("Failed to download dynamic font");
@@ -31,24 +31,18 @@ async function loadGoogleFont(
 
 async function loadGoogleFonts(
   text: string,
-  fontName: string
+  fontName: string,
+  weights: number[] = [400, 700]
 ): Promise<
   Array<{ name: string; data: ArrayBuffer; weight: number; style: string }>
 > {
-  const fontsConfig = [
-    {
-      name: fontName.split("+").join(" "),
-      font: fontName,
-      weight: 400,
-      style: "normal",
-    },
-    {
-      name: fontName.split("+").join(" "),
-      font: `${fontName}`,
-      weight: 700,
-      style: "bold",
-    },
-  ];
+  const styleForWeight = (w: number) => (w >= 600 ? "bold" : "normal");
+  const fontsConfig = weights.map((weight) => ({
+    name: fontName.split("+").join(" "),
+    font: fontName,
+    weight,
+    style: styleForWeight(weight),
+  }));
 
   const fonts = await Promise.all(
     fontsConfig.map(async ({ name, font, weight, style }) => {
