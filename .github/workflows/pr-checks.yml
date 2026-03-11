@@ -4,18 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    types:
-      - opened
-      - edited
-      - synchronize
-      - reopened
-    paths:
-      - "src/**"
-      - "public/**"
-      - "astro.config.ts"
-      - "tsconfig.json"
-      - "eslint.config.js"
-      - "remark-collapse.d.ts"
 
 jobs:
   code_quality:
