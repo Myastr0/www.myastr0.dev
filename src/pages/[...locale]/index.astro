@@ -1,0 +1,136 @@
+---
+import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
+import Card from "@/components/Card.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import ProjectCard from "@/components/ProjectCard.astro";
+import Socials from "@/components/Socials.astro";
+import { SITE, HOME_PROJECTS } from "@/config";
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/config";
+import { getRelativeLocalePath, translateFor } from "@/i18n/utils";
+import type { I18nStrings } from "@/i18n/types";
+import Layout from "@/layouts/Layout.astro";
+import getSortedPosts from "@/utils/getSortedPosts";
+import { getPostsByLocale } from "@/utils/posts";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths = (async () =>
+  SUPPORTED_LOCALES.map(locale => ({
+    params: { locale: locale === DEFAULT_LOCALE ? undefined : locale },
+  }))) satisfies GetStaticPaths;
+
+const { locale = DEFAULT_LOCALE } = Astro.params;
+
+const posts = await getPostsByLocale(locale, { draft: false });
+const t = translateFor(Astro.currentLocale);
+
+const sortedPosts = getSortedPosts(posts);
+const recentPosts = sortedPosts.slice(0, SITE.postPerIndex);
+---
+
+<Layout>
+  <Header />
+  <main
+    id="main-content"
+    class="mx-auto w-full max-w-app pb-16"
+    data-layout="index"
+    data-backurl={getRelativeLocalePath(locale, "/")}
+  >
+    <!-- Intro (jdx-style: avatar + name + handle + tagline + socials) -->
+    <section
+      class="mb-12 flex flex-col gap-8 pt-8 max-sm:pt-6 sm:flex-row sm:items-center"
+    >
+      {
+        SITE.avatar && (
+          <div class="flex flex-shrink-0" aria-hidden="true">
+            <img
+              src={SITE.avatar}
+              alt=""
+              class="size-28 rounded-full object-cover sm:size-36"
+              width="144"
+              height="144"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
+        )
+      }
+      <div class="min-w-0 flex-1">
+        <h1
+          class="mb-1 font-heading text-[clamp(1.75rem,4vw,2.5rem)] leading-tight font-normal"
+        >
+          {SITE.authorDisplayName}
+          <span class="text-foreground-muted"> {SITE.handle}</span>
+        </h1>
+        <p class="mb-4 text-sm text-foreground-muted">
+          {t("intro.tagline")}
+        </p>
+        <Socials class="gap-5 text-xl text-foreground-muted" />
+      </div>
+    </section>
+
+    <!-- Projects (jdx.dev typography: DM Mono, uppercase, tracking) -->
+    <section class="mb-16">
+      <h2
+        class="mb-6 font-body text-xs font-medium tracking-[0.15em] text-accent uppercase"
+      >
+        {t("projects.title")}
+      </h2>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          HOME_PROJECTS.map(project => (
+            <ProjectCard
+              name={project.name}
+              description={t(project.descriptionKey as keyof I18nStrings)}
+              href={project.href}
+              logo={project.logo}
+            />
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Blog: 5 most recent (jdx.dev typography: DM Mono, uppercase, tracking) -->
+    <section class="mb-12">
+      <h2
+        class="mb-6 font-body text-xs font-medium tracking-[0.15em] text-accent uppercase"
+      >
+        {t("blog.title")}
+      </h2>
+      {
+        recentPosts.length > 0 ? (
+          <>
+            <ul>
+              {recentPosts.map(data => (
+                <Card {...data} variant="h3" />
+              ))}
+            </ul>
+            <p class="mt-6">
+              <a
+                href={getRelativeLocalePath(locale, "/posts/")}
+                class="group/link text-foreground-muted transition-colors hover:text-accent"
+              >
+                {t("viewAllPosts")}
+                <IconArrowRight class="ml-1 inline-block size-4 transition-transform duration-200 ease-out group-hover/link:translate-x-0.5 rtl:mr-1 rtl:ml-0 rtl:rotate-180 rtl:group-hover/link:-translate-x-0.5 rtl:group-hover/link:translate-x-0" />
+              </a>
+            </p>
+          </>
+        ) : (
+          <p class="text-foreground-muted">{t("blog.empty")}</p>
+        )
+      }
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const element = document.querySelector("#main-content") as HTMLElement;
+    const indexLayout = element?.dataset?.layout;
+    const backUrl = element?.dataset?.backurl;
+    if (indexLayout) {
+      sessionStorage.setItem("backUrl", backUrl ?? "/");
+    }
+  });
+</script>

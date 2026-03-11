@@ -1,0 +1,115 @@
+---
+import { SHARE_LINKS } from "@/constants";
+import LinkButton from "./LinkButton.astro";
+import IconShare from "@/assets/icons/IconShare.svg";
+import { translateFor } from "@/i18n/utils";
+
+export interface Props {
+  /** Article title; when set, share text is pre-filled with "See the article from Myastr0 blog : [Title](url)". */
+  title?: string;
+}
+
+const { title } = Astro.props;
+const pageUrl = Astro.url.href;
+
+const t = translateFor(Astro.currentLocale);
+
+const shareText =
+  title &&
+  `${t("sharePost.intro")}
+
+[${title}](${pageUrl})`;
+
+const textToCopy = shareText ?? pageUrl;
+---
+
+{
+  (SHARE_LINKS.length > 0 || textToCopy) && (
+    <div class="flex flex-none flex-col items-center justify-center gap-1 md:items-start">
+      <span class="italic">{t("sharePost.desc")}:</span>
+      <div class="flex flex-wrap items-center justify-center gap-1">
+        <button
+          type="button"
+          class="group inline-block scale-90 rounded p-2 hover:rotate-6 hover:text-accent sm:p-1"
+          title={t("sharePost.copy")}
+          data-share-copy
+          data-share-text={JSON.stringify(textToCopy)}
+          data-copied-string={t("copied")}
+          aria-label={t("sharePost.copy")}
+        >
+          <IconShare class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" />
+          <span class="sr-only" data-share-copy-label>
+            {t("sharePost.copy")}
+          </span>
+        </button>
+        {SHARE_LINKS.map(social => (
+          <LinkButton
+            href={
+              social.getShareHref
+                ? social.getShareHref(pageUrl, shareText)
+                : social.href + pageUrl
+            }
+            class="scale-90 p-2 hover:rotate-6 sm:p-1"
+            title={social.linkTitle(t)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <social.icon class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" />
+            <span class="sr-only">{social.linkTitle(t)}</span>
+          </LinkButton>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+<div
+  id="share-copy-toast"
+  class="share-copy-toast fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground shadow-lg transition-all duration-300 ease-out"
+  role="status"
+  aria-live="polite"
+  aria-hidden="true"
+>
+</div>
+
+<style>
+  .share-copy-toast {
+    opacity: 0;
+    transform: translate(-50%, 0.5rem);
+    pointer-events: none;
+  }
+  .share-copy-toast.is-visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+  }
+</style>
+
+<script>
+  const toast = document.getElementById("share-copy-toast");
+  document.querySelectorAll("[data-share-copy]").forEach(button => {
+    const labelEl = button.querySelector("[data-share-copy-label]");
+    const originalTitle = button.getAttribute("title");
+    const copiedLabel = button.getAttribute("data-copied-string") ?? "Copied";
+    button.addEventListener("click", async () => {
+      const text = button.getAttribute("data-share-text");
+      if (!text || !toast) return;
+      try {
+        const decoded = JSON.parse(text) as string;
+        await navigator.clipboard.writeText(decoded);
+        if (labelEl) labelEl.textContent = copiedLabel;
+        toast.textContent = copiedLabel;
+        toast.classList.add("is-visible");
+        toast.setAttribute("aria-hidden", "false");
+        setTimeout(() => {
+          if (labelEl) labelEl.textContent = originalTitle ?? "";
+          toast.classList.remove("is-visible");
+          toast.setAttribute("aria-hidden", "true");
+          toast.textContent = "";
+        }, 1500);
+      } catch {
+        // ignore
+      }
+    });
+  });
+</script>

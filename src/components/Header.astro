@@ -1,0 +1,137 @@
+---
+import Hr from "./Hr.astro";
+import IconX from "@/assets/icons/IconX.svg";
+import IconMoon from "@/assets/icons/IconMoon.svg";
+import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
+import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
+import { SITE } from "@/config";
+import { translateFor, getRelativeLocalePath } from "@/i18n/utils";
+import LanguagePicker from "./LanguagePicker.astro";
+
+const { pathname } = Astro.url;
+
+const currentLocale = Astro.currentLocale;
+
+const t = translateFor(currentLocale);
+
+// Remove trailing slash from current pathname if exists
+const currentPath =
+  pathname.endsWith("/") && pathname !== "/" ? pathname.slice(0, -1) : pathname;
+
+const isActive = (path: string) => {
+  const currentPathArray = currentPath.split("/").filter(p => p.trim());
+  const pathArray = path.split("/").filter(p => p.trim());
+
+  return currentPath === path || currentPathArray[0] === pathArray[0];
+};
+---
+
+<header>
+  <a
+    id="skip-to-content"
+    href="#main-content"
+    class="absolute start-16 -top-full z-50 bg-background px-3 py-2 text-accent backdrop-blur-lg transition-all focus:top-4"
+  >
+    {t("a11y.skipToContent")}
+  </a>
+  <div
+    id="nav-container"
+    class="mx-auto flex w-full max-w-app flex-col items-center justify-between px-4 sm:flex-row sm:px-8"
+  >
+    <div
+      id="top-nav-wrap"
+      class="flex w-full items-baseline justify-between py-6 sm:items-center"
+    >
+      <a
+        href={getRelativeLocalePath(currentLocale, "/")}
+        class="py-1 font-heading text-xl leading-none font-normal whitespace-nowrap transition-colors hover:text-accent sm:text-2xl"
+      >
+        {t("site.title")}
+      </a>
+      <nav
+        id="nav-menu"
+        class="flex w-full flex-col items-center sm:ms-2 sm:flex-row sm:justify-end sm:py-0"
+      >
+        <button
+          id="menu-btn"
+          class="focus-outline self-end p-2 text-foreground-muted hover:text-foreground sm:hidden"
+          aria-label={t("a11y.openMenu")}
+          aria-expanded="false"
+          aria-controls="menu-items"
+          data-open-text={t("a11y.openMenu")}
+          data-close-text={t("a11y.closeMenu")}
+        >
+          <IconX id="close-icon" class="hidden" />
+          <IconMenuDeep id="menu-icon" />
+        </button>
+        <ul
+          id="menu-items"
+          class:list={[
+            "mt-4 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm text-foreground-muted",
+            "[&>li>a]:block [&>li>a]:py-1 [&>li>a]:text-foreground-muted [&>li>a]:transition-colors [&>li>a]:hover:text-accent",
+            "hidden",
+            "sm:mt-0 sm:flex sm:w-auto",
+          ]}
+        >
+          <li>
+            <a
+              href={getRelativeLocalePath(Astro.currentLocale, "/posts/")}
+              class:list={{ "active-nav": isActive("/posts") }}
+            >
+              {t("posts")}
+            </a>
+          </li>
+          <li class="flex items-center justify-center">
+            <LanguagePicker />
+          </li>
+          {
+            SITE.lightAndDarkMode && (
+              <li class="flex items-center justify-center">
+                <button
+                  id="theme-btn"
+                  class="focus-outline relative size-10 p-3 transition-colors hover:text-accent hover:[&>svg]:stroke-accent"
+                  title="Toggles light & dark"
+                  aria-label="auto"
+                  aria-live="polite"
+                >
+                  <IconMoon class="absolute top-[50%] left-[50%] -translate-[50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                  <IconSunHigh class="absolute top-[50%] left-[50%] -translate-[50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                </button>
+              </li>
+            )
+          }
+        </ul>
+      </nav>
+    </div>
+  </div>
+  <Hr />
+</header>
+
+<script>
+  function toggleNav() {
+    const menuBtn = document.querySelector("#menu-btn") as HTMLButtonElement;
+    const menuItems = document.querySelector("#menu-items");
+    const menuIcon = document.querySelector("#menu-icon");
+    const closeIcon = document.querySelector("#close-icon");
+    const openText = menuBtn?.dataset.openText || "Open Menu";
+    const closeText = menuBtn?.dataset.closeText || "Close Menu";
+
+    if (!menuBtn || !menuItems || !menuIcon || !closeIcon) return;
+
+    menuBtn.addEventListener("click", () => {
+      const openMenu = menuBtn.getAttribute("aria-expanded") === "true";
+
+      menuBtn.setAttribute("aria-expanded", openMenu ? "false" : "true");
+      menuBtn.setAttribute("aria-label", openMenu ? openText : closeText);
+
+      menuItems.classList.toggle("hidden");
+      menuIcon.classList.toggle("hidden");
+      closeIcon.classList.toggle("hidden");
+    });
+  }
+
+  toggleNav();
+
+  // Runs on view transitions navigation
+  document.addEventListener("astro:after-swap", toggleNav);
+</script>

@@ -1,0 +1,38 @@
+---
+export interface Props {
+  name: string;
+  description: string;
+  href: string;
+  logo?: string | null;
+}
+
+const { name, description, href, logo } = Astro.props;
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  class="group block rounded-lg border border-border p-6 transition-colors hover:border-accent/50"
+>
+  <div class="mb-3 flex items-center gap-3">
+    {
+      logo && (
+        <img
+          src={logo}
+          alt=""
+          class="size-8 flex-shrink-0 object-contain transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          width="32"
+          height="32"
+          loading="lazy"
+        />
+      )
+    }
+    <h3
+      class="font-heading text-lg font-normal transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+    >
+      {name}
+    </h3>
+  </div>
+  <p class="text-sm text-foreground-muted">{description}</p>
+</a>

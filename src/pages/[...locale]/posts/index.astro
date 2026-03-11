@@ -1,0 +1,46 @@
+---
+import Card from "@/components/Card.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/config";
+import { translateFor } from "@/i18n/utils";
+import Layout from "@/layouts/Layout.astro";
+import Main from "@/layouts/Main.astro";
+import getSortedPosts from "@/utils/getSortedPosts";
+import { getPostsByLocale } from "@/utils/posts";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths = (async () =>
+  SUPPORTED_LOCALES.map(locale => ({
+    params: { locale: locale === DEFAULT_LOCALE ? undefined : locale },
+  }))) satisfies GetStaticPaths;
+
+const { locale = DEFAULT_LOCALE } = Astro.params;
+const t = translateFor(Astro.currentLocale);
+
+const posts = await getPostsByLocale(locale, { draft: false });
+const sortedPosts = getSortedPosts(posts);
+
+const emptyText =
+  Astro.currentLocale === "fr"
+    ? "Aucun article pour le moment."
+    : "No posts yet.";
+---
+
+<Layout title={`${t("posts")} | ${t("site.title")}`}>
+  <Header />
+  <Main pageTitle={t("posts")} pageDesc={t("posts.desc")}>
+    {
+      sortedPosts.length > 0 ? (
+        <ul>
+          {sortedPosts.map(data => (
+            <Card {...data} />
+          ))}
+        </ul>
+      ) : (
+        <p class="mt-6 opacity-80">{emptyText}</p>
+      )
+    }
+  </Main>
+  <Footer />
+</Layout>

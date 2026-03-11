@@ -1,0 +1,69 @@
+---
+import { slugifyStr } from "@/utils/slugify";
+import type { CollectionEntry } from "astro:content";
+import { getPath } from "@/utils/getPath";
+import { getRelativeLocalePath } from "@/i18n/utils";
+import { getLocaleInfo } from "@/i18n/utils";
+import { DateTime } from "luxon";
+import { SITE } from "@/config";
+
+export interface Props extends CollectionEntry<"blog"> {
+  variant?: "h2" | "h3";
+}
+
+const { variant = "h2", data, id, filePath } = Astro.props;
+
+const { title, pubDatetime, modDatetime, timezone } = data;
+
+const headerProps = {
+  style: { viewTransitionName: slugifyStr(title) },
+};
+
+const currentLocale = Astro.currentLocale;
+
+const LOCALE = getLocaleInfo(currentLocale);
+
+const latestDatetime =
+  modDatetime && modDatetime > pubDatetime ? modDatetime : pubDatetime;
+
+const dateStr = DateTime.fromJSDate(new Date(latestDatetime))
+  .setZone(timezone || SITE.timezone)
+  .setLocale(LOCALE.langTag)
+  .toFormat("LLL d, yyyy");
+---
+
+<li class="border-b border-border/70 last:border-b-0">
+  <a
+    href={getRelativeLocalePath(currentLocale, getPath(id, filePath))}
+    class="group block py-3 focus-visible:no-underline"
+  >
+    <div class="flex items-baseline gap-4 max-sm:flex-col max-sm:gap-1">
+      <time
+        class="w-24 flex-shrink-0 text-xs text-foreground-muted tabular-nums"
+      >
+        {dateStr}
+      </time>
+      {
+        variant === "h2" ? (
+          <h2
+            {...headerProps}
+            class="inline font-body text-lg font-medium text-foreground"
+          >
+            <span class="transition-colors group-hover:text-accent">
+              {title}
+            </span>
+          </h2>
+        ) : (
+          <h3
+            {...headerProps}
+            class="text-md inline font-body font-medium text-foreground"
+          >
+            <span class="transition-colors group-hover:text-accent">
+              {title}
+            </span>
+          </h3>
+        )
+      }
+    </div>
+  </a>
+</li>

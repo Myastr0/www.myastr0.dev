@@ -1,0 +1,52 @@
+{
+  "jdx": {
+    "label": "jdx.dev",
+    "projects": {
+      "text": "Projects",
+      "fontFamily": "\"DM Mono\", \"JetBrains Mono\", monospace",
+      "fontSize": "12px",
+      "fontWeight": "500",
+      "letterSpacing": "1.8px",
+      "textTransform": "uppercase",
+      "color": "rgb(232, 184, 75)",
+      "lineHeight": "16px",
+      "className": "text-xs font-medium tracking-[0.15em] uppercase text-amber mb-6"
+    },
+    "blog": {
+      "text": "Blog",
+      "fontFamily": "\"DM Mono\", \"JetBrains Mono\", monospace",
+      "fontSize": "12px",
+      "fontWeight": "500",
+      "letterSpacing": "1.8px",
+      "textTransform": "uppercase",
+      "color": "rgb(232, 184, 75)",
+      "lineHeight": "16px",
+      "className": "text-xs font-medium tracking-[0.15em] uppercase text-amber mb-6"
+    }
+  },
+  "local": {
+    "label": "local",
+    "projects": {
+      "text": "Projects",
+      "fontFamily": "\"DM Mono\", \"JetBrains Mono\", monospace",
+      "fontSize": "12px",
+      "fontWeight": "500",
+      "letterSpacing": "1.8px",
+      "textTransform": "uppercase",
+      "color": "rgb(180, 83, 9)",
+      "lineHeight": "16px",
+      "className": "font-body mb-6 text-xs font-medium uppercase tracking-[0.15em] text-accent"
+    },
+    "blog": {
+      "text": "Blog",
+      "fontFamily": "\"DM Mono\", \"JetBrains Mono\", monospace",
+      "fontSize": "12px",
+      "fontWeight": "500",
+      "letterSpacing": "1.8px",
+      "textTransform": "uppercase",
+      "color": "rgb(180, 83, 9)",
+      "lineHeight": "16px",
+      "className": "font-body mb-6 text-xs font-medium uppercase tracking-[0.15em] text-accent"
+    }
+  }
+}
