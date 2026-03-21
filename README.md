@@ -31,11 +31,11 @@ pnpm test:e2e
 
 ## Analytics (PostHog)
 
-PostHog web tracking is enabled in production only.
+PostHog web tracking follows the Astro setup from the PostHog docs.
 
-- Client init script: `src/scripts/posthog-client.ts`
+- Component: `src/components/posthog.astro`
 - Injected from layout: `src/layouts/Layout.astro`
-- Package: `posthog-js`
+- Uses PostHog's inline web snippet with an initialization guard for Astro `ClientRouter`
 
 ### Environment variables
 
@@ -48,8 +48,8 @@ PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
 
 ### Behavior
 
-- Disabled in `dev` mode (`import.meta.env.PROD` guard)
-- Initialized once per browser session (`sessionStorage` key: `posthog:initialized`)
+- Initializes only when `PUBLIC_POSTHOG_KEY` is set
+- Prevents duplicate initialization with `window.__posthog_initialized`
 - Uses `capture_pageview: "history_change"` for Astro client-side navigation
 
 ## License
