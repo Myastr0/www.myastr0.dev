@@ -1,5 +1,4 @@
 import satori from "satori";
-import { SITE } from "@/config";
 import { translateFor } from "@/i18n/utils";
 import loadGoogleFonts from "../loadGoogleFont";
 
