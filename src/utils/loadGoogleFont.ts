@@ -37,7 +37,7 @@ async function loadGoogleFonts(
   Array<{ name: string; data: ArrayBuffer; weight: number; style: string }>
 > {
   const styleForWeight = (w: number) => (w >= 600 ? "bold" : "normal");
-  const fontsConfig = weights.map((weight) => ({
+  const fontsConfig = weights.map(weight => ({
     name: fontName.split("+").join(" "),
     font: fontName,
     weight,
