@@ -6,8 +6,12 @@ import {
   getRelativeLocalePath,
 } from "@/i18n/utils";
 import { ClientRouter } from "astro:transitions";
-import { PUBLIC_GOOGLE_SITE_VERIFICATION } from "astro:env/client";
+import {
+  PUBLIC_GOOGLE_SITE_VERIFICATION,
+  PUBLIC_POSTHOG_KEY,
+} from "astro:env/client";
 import { SITE } from "@/config";
+import posthogClientScript from "@/scripts/posthog-client.ts?url";
 import "@/styles/global.css";
 
 const t = translateFor(Astro.currentLocale);
@@ -156,6 +160,12 @@ const structuredData = {
     }
 
     <ClientRouter />
+
+    {
+      import.meta.env.PROD && PUBLIC_POSTHOG_KEY && (
+        <script is:inline type="module" src={posthogClientScript} />
+      )
+    }
 
     <script is:inline src="/toggle-theme.js"></script>
   </head>
