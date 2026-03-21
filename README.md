@@ -29,6 +29,29 @@ pnpm test:e2e
 - `pnpm type-check` — Astro type check
 - `pnpm og:capture` — Capture homepage as default OG image (Playwright; writes `public/default-og.jpg`)
 
+## Analytics (PostHog)
+
+PostHog web tracking is enabled in production only.
+
+- Client init script: `src/scripts/posthog-client.ts`
+- Injected from layout: `src/layouts/Layout.astro`
+- Package: `posthog-js`
+
+### Environment variables
+
+Set these in your environment (for example in local `.env` and in production secrets):
+
+```bash
+PUBLIC_POSTHOG_KEY=phc_xxx
+PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
+```
+
+### Behavior
+
+- Disabled in `dev` mode (`import.meta.env.PROD` guard)
+- Initialized once per browser session (`sessionStorage` key: `posthog:initialized`)
+- Uses `capture_pageview: "history_change"` for Astro client-side navigation
+
 ## License
 
 See [LICENSE](LICENSE).
