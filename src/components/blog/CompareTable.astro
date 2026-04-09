@@ -1,0 +1,148 @@
+---
+interface Column {
+  title: string;
+  items: string[];
+  variant?: "bad" | "good" | "neutral";
+}
+
+interface Props {
+  columns: Column[];
+  callout?: string;
+  calloutVariant?: "gold" | "mint" | "red";
+}
+
+const { columns, callout, calloutVariant = "gold" } = Astro.props;
+---
+
+<div class="compare-block not-prose">
+  <div
+    class="compare-grid"
+    style={`grid-template-columns: repeat(${columns.length}, 1fr)`}
+  >
+    {
+      columns.map(col => (
+        <div class={`compare-col compare-col--${col.variant ?? "neutral"}`}>
+          <h3 class="compare-title">{col.title}</h3>
+          <ul class="compare-list">
+            {col.items.map(item => (
+              <li set:html={item} />
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+  {
+    callout && (
+      <div class={`compare-callout compare-callout--${calloutVariant}`}>
+        {callout}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .compare-block {
+    margin: 1.5rem 0;
+    font-family: "DM Mono", "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  .compare-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  @media (max-width: 640px) {
+    .compare-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  .compare-col {
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 22px;
+  }
+
+  .compare-col--bad {
+    border-color: rgba(248, 113, 113, 0.35);
+  }
+
+  .compare-col--good {
+    border-color: rgba(110, 231, 154, 0.3);
+  }
+
+  .compare-title {
+    font-family: "DM Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 0 0 14px 0;
+    color: var(--foreground-muted);
+  }
+
+  .compare-col--bad .compare-title {
+    color: #f87171;
+  }
+
+  .compare-col--good .compare-title {
+    color: var(--accent2);
+  }
+
+  .compare-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .compare-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--foreground-muted);
+    line-height: 1.5;
+  }
+
+  .compare-list li::before {
+    content: "→";
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    color: var(--foreground-muted);
+  }
+
+  .compare-col--bad .compare-list li::before {
+    content: "✗";
+    color: #f87171;
+  }
+
+  .compare-col--good .compare-list li::before {
+    content: "✓";
+    color: var(--accent2);
+  }
+
+  .compare-callout {
+    margin-top: 12px;
+    background: var(--muted);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 14px 18px;
+    font-size: 0.875rem;
+    font-style: italic;
+    color: var(--foreground);
+    line-height: 1.6;
+  }
+
+  .compare-callout--mint {
+    border-color: var(--accent2);
+  }
+
+  .compare-callout--red {
+    border-color: #f87171;
+  }
+</style>

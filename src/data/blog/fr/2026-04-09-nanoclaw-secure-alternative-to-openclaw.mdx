@@ -1,0 +1,268 @@
+---
+title: "NanoClaw : une alternative sécurisée à OpenClaw pour l'orchestration d'agents IA"
+description: "Retour d'expérience sur NanoClaw, le setup minimaliste d'orchestration d'agents IA qui privilégie la sécurité dès le départ — avec seulement ~3 900 lignes de code et moins de 10 dépendances."
+pubDatetime: 2026-04-09T06:59:00.000Z
+draft: false
+tags:
+  - AI
+  - agents
+  - claude code
+  - nanoclaw
+  - openclaw
+  - sécurité
+  - orchestration
+  - developer experience
+---
+
+import CompareTable from "@/components/blog/CompareTable.astro";
+import ArchDiagram from "@/components/blog/ArchDiagram.astro";
+
+---
+
+Depuis quelques mois, les outils d'orchestration d'agents IA se multiplient à une vitesse folle. 
+
+Et parmi eux, **OpenClaw** a rapidement attiré l'attention de beaucoup de développeurs — dont la mienne. Mais après avoir creusé un peu, j'ai fini par opter pour quelque chose de beaucoup plus petit, de beaucoup plus lisible, et de bien plus sûr : **NanoClaw**.
+
+Voici mon retour d'expérience.
+
+
+
+## Pourquoi j'ai regardé au-delà d'OpenClaw
+
+---
+
+OpenClaw, c'est séduisant sur le papier. Une solution complète, bien pensée, avec une communauté active. Mais une fois qu'on commence à creuser sous le capot, quelques points m'ont mis mal à l'aise.
+
+D'abord, la **taille du projet** : environ **434 000 lignes de code** et près de **70 dépendances externes**. Pour un outil que vous laissez tourner sur votre machine ou vos serveurs avec un accès à vos projets, votre filesystem, et potentiellement Internet — c'est une surface d'attaque non négligeable. Difficile de vraiment auditer ce qui se passe là-dedans en tant que dev solo.
+
+Ensuite, le **modèle de sécurité** : OpenClaw gère la sécurité au **niveau applicatif**. C'est-à-dire que l'isolation entre l'agent et votre système hôte repose sur du code applicatif, pas sur des mécanismes d'isolation OS. Pour un outil IA natif, capable d'exécuter du code et d'appeler des APIs, ce choix me semblait risqué.
+
+> Trop gros à maintenir pour un dev solo — la sécurité au niveau applicatif est risquée pour un outil IA natif.
+
+
+## La découverte : NanoClaw
+
+---
+
+C'est dans ce contexte que j'ai découvert **NanoClaw**. La promesse : le **setup minimal d'orchestration d'agents IA**, sûr dès le départ.
+
+La comparaison avec OpenClaw est saisissante :
+
+<CompareTable
+  columns={[
+    {
+      title: "OpenClaw",
+      variant: "bad",
+      items: ["434 000 lignes de code", "70 dépendances", "Sécurité applicative"],
+    },
+    {
+      title: "NanoClaw",
+      variant: "good",
+      items: ["<strong>~3 900</strong> lignes de code", "<strong>&lt;10</strong> dépendances", "Isolation OS <em>(Container)</em>"],
+    },
+  ]}
+  callout="L'idée : le plus petit setup possible d'orchestration d'agents IA — et sûr dès le départ."
+  calloutVariant="mint"
+/>
+
+C'est un facteur de **100x** sur la taille du codebase. Et le modèle de sécurité est fondamentalement différent : l'agent tourne dans un **container isolé**, pas juste dans un processus qu'on espère bien cloisonné.
+
+
+
+## Setup et premières impressions
+
+---
+
+J'ai installé NanoClaw sur un **mini-pc** local que j'ai chez moi. Une session Claude Code pour l'installation initiale, et un seul vrai prérequis manuel : **connecter un serveur Discord dédié**.
+
+C'était un vendredi soir, veille d'un long week-end. J'ai lancé l'installation, et je suis parti à la plage. Quand je suis revenu, le système était opérationnel. Et le plus surprenant : **tout le reste de la configuration s'était faite via l'agent NanoClaw lui-même** — depuis mon téléphone, en lui envoyant des messages sur Discord.
+
+> "L'outil s'est configuré de lui-même. C'est ça, l'AI-native setup."
+
+C'est peut-être le meilleur résumé de l'expérience onboarding. Pas de fichiers YAML à écrire manuellement, pas de documentation à parcourir pendant des heures. L'agent comprend ce que vous voulez, et il s'adapte.
+
+
+## Deux modes d'utilisation
+
+---
+
+### Mode 1:1 — un agent, une conversation 🐣
+
+Le mode le plus simple, et déjà très puissant. Vous avez un serveur Discord dédié avec un canal par contexte. Vous envoyez un message → l'agent répond. Il a accès au web, à sa mémoire, aux outils que vous lui avez configurés. Et surtout : vous pouvez y accéder depuis **n'importe quel appareil, n'importe où**.
+
+Ça paraît simple, mais c'est déjà un vrai changement de paradigme par rapport à une session Claude Code classique dans un terminal.
+
+### Mode Swarm — une équipe d'agents ✨
+
+C'est là que NanoClaw devient vraiment intéressant. En mode Swarm, vous avez plusieurs agents, chacun avec son rôle et ses canaux dédiés, coordonnés par un **agent Master** qui orchestre et dispatche.
+
+<CompareTable
+  columns={[
+    {
+      title: "L'organisation",
+      variant: "neutral",
+      items: [
+        "Chaque agent = un rôle, des canaux dédiés",
+        "Master — orchestre et dispatche",
+        "Base de connaissance partagée",
+      ],
+    },
+    {
+      title: "Ce que ça produit",
+      variant: "good",
+      items: [
+        "Rapports asynchrones dans vos canaux Discord",
+        "Pipeline de contenu entièrement automatisé",
+        "Coordination sans intervention humaine",
+      ],
+    },
+  ]}
+/>
+
+Ce n'est plus un assistant — c'est un **environnement d'orchestration multi-agents**.
+
+---
+
+## L'architecture de sécurité 🔒
+
+C'est là où NanoClaw se distingue vraiment. Le modèle repose sur un principe simple mais fondamental : **zéro confiance implicite** entre chaque couche.
+
+<ArchDiagram
+  nodes={[
+    { icon: "👤", label: "Utilisateur", sublabel: "Discord / WhatsApp" },
+    { icon: "🤖", label: "Agent NanoClaw", sublabel: "container isolé", highlight: true },
+    { icon: "🖥️", label: "Host NanoClaw", sublabel: "Node.js process" },
+    { icon: "🌐", label: "Internet", sublabel: "web, APIs…" },
+  ]}
+  arrows={[
+    { label: "messages" },
+    { label: "IPC filesystem" },
+    { label: "requêtes filtrées" },
+  ]}
+  callouts={[
+    "🔒 L'agent ne voit <strong>que ce qu'on lui monte explicitement</strong> — pas d'accès ambient au système hôte",
+    "🛡️ Le host valide et autorise chaque requête IPC avant exécution — <strong>zéro confiance implicite</strong>",
+  ]}
+/>
+
+C'est le contraire d'une sécurité "par espoir" — c'est une sécurité par conception.
+
+---
+
+## Le moment "woah" 🤯
+
+Il y a eu un point de bascule dans mon expérimentation : le moment où j'ai réalisé que **NanoClaw modifie son propre code en temps réel**.
+
+Concrètement :
+- Il **anticipe certains patterns** avant que vous les décriviez deux fois
+- Il **intègre les contraintes** que vous lui imposez (sécurité, méthodologie) de manière persistante
+- Il peut **créer lui-même des agents spécialisés** selon vos besoins
+- Il peut **concevoir des outils** pour vous permettre de gérer vos agents
+
+Ce n'est pas juste un agent qui exécute des tâches. C'est un système qui évolue avec vous.
+
+---
+
+## Les frustrations (et les workarounds)
+
+Soyons honnêtes : NanoClaw n'est pas parfait, et deux points m'ont vraiment frustré.
+
+<CompareTable
+  columns={[
+    {
+      title: "Observabilité opaque",
+      variant: "bad",
+      items: [
+        "Management interne des agents : boîte noire",
+        "Difficile de savoir ce qui change et pourquoi",
+        "<strong>Workaround :</strong> historique Git + auto-commits → lire les diffs régulièrement",
+      ],
+    },
+    {
+      title: "Token burn 🔥",
+      variant: "bad",
+      items: [
+        "Claude Code Pro → limites rapides en mode Swarm (~20$ pour 1h de conversation)",
+        "<strong>Workaround :</strong> routing par complexité",
+        "Simple → <strong>Ollama local</strong> · Complexe → <strong>Claude Code</strong>",
+      ],
+    },
+  ]}
+/>
+
+
+## Pour qui est fait NanoClaw ? 🤔
+
+---
+
+<CompareTable
+  columns={[
+    {
+      title: "Non-dev / Usage personnel",
+      variant: "good",
+      items: [
+        "L'outil <strong>s'adapte à vous</strong>",
+        "Rapport effort/résultat excellent 🏃",
+        "Onboarding guidé, sécurisé par défaut 🔑",
+        "Consommation de tokens excessive 📈",
+      ],
+    },
+    {
+      title: "Team / Pro / Entreprise",
+      variant: "neutral",
+      items: [
+        "Base sécu solide 🔒",
+        "Investissement amont nécessaire pour le mode Swarm",
+        "Outils enterprise à construire : observabilité, gestion des droits, audit trail",
+      ],
+    },
+  ]}
+  callout="Prévu pour l'usage personnel, pas pour un usage en équipe — d'après le site officiel."
+/>
+
+---
+
+## Verdict ☝️
+
+Après plusieurs semaines d'utilisation, voici ce que j'en retiens :
+
+<CompareTable
+  columns={[
+    {
+      title: "✓ Ce qui tient la route",
+      variant: "good",
+      items: [
+        "Sécurité <em>vraiment</em> pensée dès le départ",
+        "Prévu pour être augmenté par l'IA elle-même",
+        "Parfait pour un usage fun / perso",
+        "Facile à maintenir",
+      ],
+    },
+    {
+      title: "✗ La limite réelle",
+      variant: "bad",
+      items: [
+        "tokens × agents × fréquence",
+        "Seulement en solo par défaut",
+        "Les coûts montent vite sur un usage intensif (pareil qu'OpenClaw)",
+      ],
+    },
+  ]}
+  callout="Le bon outil pour le bon usage — pas une silver bullet, mais une base saine."
+/>
+
+Si vous cherchez un setup d'agents IA minimaliste, sécurisé, et que vous n'avez pas peur de mettre les mains dans le cambouis au départ — NanoClaw vaut vraiment la peine d'être essayé.
+
+---
+
+## Références
+
+- **NanoClaw** — [nanoclaw.dev](https://nanoclaw.dev) · [github.com/qwibitai/nanoclaw](https://github.com/qwibitai/nanoclaw)
+- **OpenClaw** — [openclaw.ai](https://openclaw.ai) · [github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
+- **OneCLI** — coffre-fort de credentials open-source pour agents IA — [onecli.sh](https://onecli.sh) · [github.com/onecli/onecli](https://github.com/onecli/onecli)
+
+---
+
+Merci de m’avoir lu jusqu’ici 🙇‍♂️
+
+Si vous avez des retours sur cet article (ou s’il vous a plu), n’hésitez pas à m’envoyer un message sur Bluesky, à le partager sur LinkedIn, ou ailleurs.
