@@ -1,0 +1,164 @@
+---
+interface Node {
+  icon: string;
+  label: string;
+  sublabel?: string;
+  highlight?: boolean;
+}
+
+interface Arrow {
+  label: string;
+}
+
+interface Props {
+  nodes: Node[];
+  arrows: Arrow[];
+  callouts?: string[];
+}
+
+const { nodes, arrows, callouts = [] } = Astro.props;
+---
+
+<div class="arch-block not-prose">
+  <div class="arch-flow">
+    {
+      nodes.map((node, i) => (
+        <>
+          <div
+            class={`arch-node${node.highlight ? "arch-node--highlight" : ""}`}
+          >
+            <span class="arch-icon">{node.icon}</span>
+            <span class="arch-label">{node.label}</span>
+            {node.sublabel && (
+              <span class="arch-sublabel">{node.sublabel}</span>
+            )}
+          </div>
+          {i < arrows.length && (
+            <div class="arch-arrow">
+              <span class="arch-arrow-label">{arrows[i].label}</span>
+              <span class="arch-arrow-line">⟷</span>
+            </div>
+          )}
+        </>
+      ))
+    }
+  </div>
+
+  {
+    callouts.length > 0 && (
+      <div class="arch-callouts">
+        {callouts.map(c => (
+          <div class="arch-callout" set:html={c} />
+        ))}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .arch-block {
+    margin: 1.5rem 0;
+    font-family: "DM Mono", "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  .arch-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+
+  .arch-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 14px 18px;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-width: 100px;
+    gap: 4px;
+  }
+
+  .arch-node--highlight {
+    border: 2px solid var(--accent);
+  }
+
+  .arch-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  .arch-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--foreground);
+    line-height: 1.2;
+  }
+
+  .arch-node--highlight .arch-label {
+    color: var(--accent);
+  }
+
+  .arch-sublabel {
+    font-size: 0.65rem;
+    color: var(--foreground-muted);
+    margin-top: 2px;
+  }
+
+  .arch-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 6px;
+    color: var(--foreground-muted);
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .arch-arrow-label {
+    font-size: 0.65rem;
+    color: var(--foreground-muted);
+    white-space: nowrap;
+  }
+
+  .arch-arrow-line {
+    font-size: 1.1rem;
+    letter-spacing: -3px;
+    color: var(--foreground-muted);
+  }
+
+  .arch-callouts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  @media (max-width: 640px) {
+    .arch-flow {
+      flex-direction: column;
+    }
+
+    .arch-arrow {
+      transform: rotate(90deg);
+    }
+
+    .arch-callouts {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .arch-callout {
+    background: var(--muted);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    font-size: 0.8rem;
+    color: var(--foreground);
+    line-height: 1.6;
+  }
+</style>

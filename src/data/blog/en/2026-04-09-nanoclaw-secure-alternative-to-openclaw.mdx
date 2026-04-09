@@ -1,0 +1,268 @@
+---
+title: "NanoClaw: a secure alternative to OpenClaw for AI agent orchestration"
+description: "A hands-on review of NanoClaw, the minimalist AI agent orchestration setup that prioritizes security from day one — with only ~3,900 lines of code and fewer than 10 dependencies."
+pubDatetime: 2026-04-09T06:59:00.000Z
+draft: false
+tags:
+  - AI
+  - agents
+  - claude code
+  - nanoclaw
+  - openclaw
+  - sécurité
+  - orchestration
+  - developer experience
+---
+
+import CompareTable from "@/components/blog/CompareTable.astro";
+import ArchDiagram from "@/components/blog/ArchDiagram.astro";
+
+---
+
+Over the past few months, AI agent orchestration tools have been multiplying at a crazy pace.
+
+Among them, **OpenClaw** quickly caught the attention of many developers, including me. But after digging in a bit, I ended up choosing something much smaller, much more readable, and much safer: **NanoClaw**.
+
+Here is my hands-on feedback.
+
+
+
+## Why I looked beyond OpenClaw
+
+---
+
+OpenClaw looks appealing on paper. It's a complete, well-designed solution with an active community. But once you start digging under the hood, a few things made me uncomfortable.
+
+First, the **project size**: around **434,000 lines of code** and nearly **70 external dependencies**. For a tool you run on your machine or servers with access to your projects, your filesystem, and potentially the internet, that's a non-trivial attack surface. As a solo dev, it's hard to truly audit what is happening in there.
+
+Then, the **security model**: OpenClaw handles security at the **application level**. In other words, isolation between the agent and your host system relies on application code, not OS isolation mechanisms. For an AI-native tool capable of executing code and calling APIs, that choice felt risky to me.
+
+> Too big to maintain for a solo dev — application-level security is risky for an AI-native tool.
+
+
+## Discovery: NanoClaw
+
+---
+
+That's the context in which I discovered **NanoClaw**. The promise: the **minimal AI agent orchestration setup**, secure from day one.
+
+The comparison with OpenClaw is striking:
+
+<CompareTable
+  columns={[
+    {
+      title: "OpenClaw",
+      variant: "bad",
+      items: ["434,000 lines of code", "70 dependencies", "Application-level security"],
+    },
+    {
+      title: "NanoClaw",
+      variant: "good",
+      items: ["<strong>~3,900</strong> lines of code", "<strong>&lt;10</strong> dependencies", "OS isolation <em>(Container)</em>"],
+    },
+  ]}
+  callout="The idea: the smallest possible AI agent orchestration setup — and secure from day one."
+  calloutVariant="mint"
+/>
+
+It's a **100x** factor in codebase size. And the security model is fundamentally different: the agent runs in an **isolated container**, not just in a process we hope is properly sandboxed.
+
+
+
+## Setup and first impressions
+
+---
+
+I installed NanoClaw on a local **mini PC** I have at home. One Claude Code session for the initial install, and only one real manual prerequisite: **connecting a dedicated Discord server**.
+
+It was a Friday evening, right before a long weekend. I launched the install and went to the beach. When I came back, the system was up and running. And the most surprising part: **the rest of the configuration had been done through the NanoClaw agent itself** — from my phone, by sending it messages on Discord.
+
+> "The tool configured itself. That's what an AI-native setup is."
+
+That might be the best summary of the onboarding experience. No YAML files to write manually, no hours spent reading docs. The agent understands what you want and adapts.
+
+
+## Two usage modes
+
+---
+
+### 1:1 mode — one agent, one conversation 🐣
+
+This is the simplest mode, and already very powerful. You get a dedicated Discord server with one channel per context. You send a message -> the agent replies. It has web access, memory, and whatever tools you configured for it. Most importantly, you can access it from **any device, anywhere**.
+
+It sounds simple, but it's already a real paradigm shift compared to a standard Claude Code session in a terminal.
+
+### Swarm mode — a team of agents ✨
+
+This is where NanoClaw gets really interesting. In Swarm mode, you have multiple agents, each with its own role and dedicated channels, coordinated by a **Master agent** that orchestrates and dispatches.
+
+<CompareTable
+  columns={[
+    {
+      title: "Organization",
+      variant: "neutral",
+      items: [
+        "Each agent = one role, dedicated channels",
+        "Master — orchestrates and dispatches",
+        "Shared knowledge base",
+      ],
+    },
+    {
+      title: "What it produces",
+      variant: "good",
+      items: [
+        "Asynchronous reports in your Discord channels",
+        "Fully automated content pipeline",
+        "Coordination without human intervention",
+      ],
+    },
+  ]}
+/>
+
+This is no longer an assistant — it's a **multi-agent orchestration environment**.
+
+---
+
+## The security architecture 🔒
+
+This is where NanoClaw really stands out. The model is built on a simple but fundamental principle: **zero implicit trust** between every layer.
+
+<ArchDiagram
+  nodes={[
+    { icon: "👤", label: "User", sublabel: "Discord / WhatsApp" },
+    { icon: "🤖", label: "NanoClaw Agent", sublabel: "isolated container", highlight: true },
+    { icon: "🖥️", label: "Host NanoClaw", sublabel: "Node.js process" },
+    { icon: "🌐", label: "Internet", sublabel: "web, APIs…" },
+  ]}
+  arrows={[
+    { label: "messages" },
+    { label: "IPC filesystem" },
+    { label: "filtered requests" },
+  ]}
+  callouts={[
+    "🔒 The agent sees <strong>only what is explicitly mounted for it</strong> — no ambient access to the host system",
+    "🛡️ The host validates and authorizes every IPC request before execution — <strong>zero implicit trust</strong>",
+  ]}
+/>
+
+It's the opposite of "security by hope" — it's security by design.
+
+---
+
+## The "woah" moment 🤯
+
+There was a tipping point in my experimentation: the moment I realized that **NanoClaw modifies its own code in real time**.
+
+Concretely:
+- It **anticipates certain patterns** before you even describe them twice
+- It **integrates constraints** you impose on it (security, methodology) in a persistent way
+- It can **create specialized agents itself** based on your needs
+- It can **design tools** to help you manage your agents
+
+This is not just an agent that executes tasks. It's a system that evolves with you.
+
+---
+
+## Frustrations (and workarounds)
+
+Let's be honest: NanoClaw isn't perfect, and two points really frustrated me.
+
+<CompareTable
+  columns={[
+    {
+      title: "Opaque observability",
+      variant: "bad",
+      items: [
+        "Internal agent management: black box",
+        "Hard to know what changes and why",
+        "<strong>Workaround:</strong> Git history + auto-commits -> review diffs regularly",
+      ],
+    },
+    {
+      title: "Token burn 🔥",
+      variant: "bad",
+      items: [
+        "Claude Code Pro -> quick limits in Swarm mode (~$20 for 1h of conversation)",
+        "<strong>Workaround:</strong> complexity-based routing",
+        "Simple -> <strong>Local Ollama</strong> · Complex -> <strong>Claude Code</strong>",
+      ],
+    },
+  ]}
+/>
+
+
+## Who is NanoClaw for? 🤔
+
+---
+
+<CompareTable
+  columns={[
+    {
+      title: "Non-dev / Personal use",
+      variant: "good",
+      items: [
+        "The tool <strong>adapts to you</strong>",
+        "Excellent effort-to-outcome ratio 🏃",
+        "Guided onboarding, secure by default 🔑",
+        "High token consumption 📈",
+      ],
+    },
+    {
+      title: "Team / Pro / Enterprise",
+      variant: "neutral",
+      items: [
+        "Solid security foundation 🔒",
+        "Upfront investment needed for Swarm mode",
+        "Enterprise tooling to build: observability, access control, audit trail",
+      ],
+    },
+  ]}
+  callout="Designed for personal use, not team usage — according to the official site."
+/>
+
+---
+
+## Verdict ☝️
+
+After several weeks of use, here's what I take away:
+
+<CompareTable
+  columns={[
+    {
+      title: "✓ What holds up",
+      variant: "good",
+      items: [
+        "Security <em>truly</em> designed from day one",
+        "Built to be extended by AI itself",
+        "Perfect for fun / personal use",
+        "Easy to maintain",
+      ],
+    },
+    {
+      title: "✗ The real limit",
+      variant: "bad",
+      items: [
+        "tokens × agents × fréquence",
+        "Solo-only by default",
+        "Costs rise quickly with heavy usage (same as OpenClaw)",
+      ],
+    },
+  ]}
+  callout="The right tool for the right use case — not a silver bullet, but a sound foundation."
+/>
+
+If you're looking for a minimalist, secure AI agent setup, and you're not afraid to get your hands dirty at the beginning — NanoClaw is absolutely worth trying.
+
+---
+
+## References
+
+- **NanoClaw** — [nanoclaw.dev](https://nanoclaw.dev) · [github.com/qwibitai/nanoclaw](https://github.com/qwibitai/nanoclaw)
+- **OpenClaw** — [openclaw.ai](https://openclaw.ai) · [github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
+- **OneCLI** — open-source credential vault for AI agents — [onecli.sh](https://onecli.sh) · [github.com/onecli/onecli](https://github.com/onecli/onecli)
+
+---
+
+Thanks for reading all the way through 🙇‍♂️
+
+If you have feedback on this article (or if you enjoyed it), feel free to send me a message on Bluesky, share it on LinkedIn, or elsewhere.

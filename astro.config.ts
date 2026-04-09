@@ -1,6 +1,7 @@
 import { defineConfig, envField } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
+import mdx from "@astrojs/mdx";
 import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
 import { SITE } from "./src/config";
@@ -18,6 +19,7 @@ export default defineConfig({
     defaultLocale: DEFAULT_LOCALE,
   },
   integrations: [
+    mdx(),
     sitemap({
       i18n: {
         defaultLocale: DEFAULT_LOCALE,
