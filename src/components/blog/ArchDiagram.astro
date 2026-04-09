@@ -25,7 +25,7 @@ const { nodes, arrows, callouts = [] } = Astro.props;
       nodes.map((node, i) => (
         <>
           <div
-            class={`arch-node${node.highlight ? "arch-node--highlight" : ""}`}
+            class={`arch-node ${node.highlight ? "arch-node--highlight" : ""}`}
           >
             <span class="arch-icon">{node.icon}</span>
             <span class="arch-label">{node.label}</span>
